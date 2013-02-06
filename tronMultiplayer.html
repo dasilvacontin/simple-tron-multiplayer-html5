@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="/nowjs/now.js"></script>
+  </head>
+  <body>
+    <div align=center>
+	<canvas id="paper" width="800" height="600"></canvas>
+	    <script>
+	
+	var canvas;
+	var ctx;
+	var dir = "right";
+	var cellEdge = 6;
+	var edge = 60;
+	var nickname = "";
+	nickname = prompt("Enter your nickname:", "");
+	
+	function paint (obj, isMe) {
+	   /*
+	   var s = "rgba(0, 0, 0, 0.5)";
+	   if (isMe){
+		s = "rgba(255, 0, 0, 0.7)";
+	   }
+	   */
+	   ctx.fillStyle = obj.c;
+	   ctx.fillRect(obj.j*cellEdge+1, obj.i*cellEdge+1, cellEdge-2, cellEdge-2);
+	}
+	
+	function changeDirection(ndir) {
+	   if (ndir != dir){
+		dir = ndir;
+		now.changeBikeDirection(dir);
+  	 }
+	}	
+	
+	$(document).keydown(function (e) {
+	   switch (e.keyCode) {
+	   case 37: // left
+	      changeDirection("left"); break;
+	   case 39: // right
+     	 	changeDirection("right"); break;
+   	case 38: // up
+	      changeDirection("up"); break;
+	   case 40: // down
+	      changeDirection("down"); break;
+	   }
+	});
+	
+	
+	function checkIfNickname () {
+		if (nickname != "" || nickname != undefined){
+			now.updateNickname(nickname);
+		} else {
+			setTimeout(checkIfNickname, 100);
+		}
+	}
+	$(document).ready(function () {
+	   canvas = $('#paper')[0];   
+	
+	   ctx = canvas.getContext('2d');
+	   
+	   now.ready(function () {
+	      console.log("Connectat [" + now.core.clientId + "]");
+	      setTimeout(checkIfNickname, 100);
+	   })
+	});
+	
+	now.reset = function (edge) {
+		dir = "right";
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "black";
+		for (var i = 0; i < edge; i++){
+			for (var j = 0; j < edge; j++){
+				if (i == 0 || j == 0 || i == edge-1 || j == edge-1){
+					ctx.fillRect(j*cellEdge+1, i*cellEdge+1, cellEdge-2, cellEdge-2);
+				}
+			}
+		}
+	};
+	
+	now.updateScores = function (theBikes) {
+		ctx.clearRect(600, 0, canvas.width, canvas.height);
+		console.log("Updating scores!");
+		var row = 0;
+		for (var i in theBikes){
+			ctx.fillStyle = theBikes[i].c;
+			ctx.fillRect(610, 10+row*50, 40, 40);
+			ctx.fillText(theBikes[i].nick + " has " + theBikes[i].w.toString() + " points.", 610+50, 10+row*50+20);
+			row++;
+		}
+	};
+	
+	now.receiveNewPositions = function (nbikes) {
+		for (var i in nbikes){
+			var abike = nbikes[i];
+			if (abike.alive){
+				paint(abike, i === now.core.clientId);
+			}
+		}
+	};
+	
+	/*
+	now.dibuixa = function (actors) {
+	   console.log("dibuixa!");
+	 
+	  console.log(actors);
+	   ctx.clearRect(0, 0, 300, 300);
+  	 for 	(var i in actors) {
+	      rect(actors[i], i === now.core.clientId);
+	   }
+	}
+	*/
+	
+	    </script>
+	
+	<p style="color:#303030; padding-top:10px; font:14px arial,sans-serif; font-weight:lighter">David da Silva Contín ~ <a target="_blank" href="http://twitter.com/AirRider3">twitter</a> · <a target="_blank" href="http://bluecodestudio.com">blog</a></p>
+	</div>  
+	</body>
+</html>
